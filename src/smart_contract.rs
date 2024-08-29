@@ -7,6 +7,64 @@ use std::fmt;
 use crate::public_key_serde::SerializablePublicKey;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum AIModel {
+    ImageClassification,
+    NaturalLanguageProcessing,
+    ObjectDetection,
+    // Add more AI model types as needed
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum AITask {
+    Inference {
+        model: AIModel,
+        input_data: Vec<u8>,  // Serialized input data
+    },
+    TrainingContribution {
+        model: AIModel,
+        training_data: Vec<u8>,  // Serialized training data
+    },
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct AIInferenceContract {
+    pub owner: SerializablePublicKey,
+    pub model: AIModel,
+    pub state: HashMap<String, String>,
+    pub gpu_requirements: String,
+    pub ram_requirements: f64,
+}
+
+impl AIInferenceContract {
+    pub fn new(owner: PublicKey, model: AIModel, gpu_requirements: String, ram_requirements: f64) -> Self {
+        AIInferenceContract {
+            owner: SerializablePublicKey(owner),
+            model,
+            state: HashMap::new(),
+            gpu_requirements,
+            ram_requirements,
+        }
+    }
+
+    pub fn execute(&mut self, task: AITask) -> Result<String, String> {
+        match task {
+            AITask::Inference { model, input_data } => {
+                // Here, you would implement the actual inference logic
+                // For now, we'll just return a placeholder result
+                Ok(format!("Inference completed for {:?} model", model))
+            },
+            AITask::TrainingContribution { model, training_data } => {
+                // Here, you would implement logic to incorporate training data
+                // For now, we'll just return a placeholder result
+                Ok(format!("Training data contribution received for {:?} model", model))
+            },
+        }
+    }
+}
+
+
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SmartContract {
     pub owner: SerializablePublicKey,
     pub code: Vec<u8>,
@@ -37,6 +95,13 @@ impl SmartContract {
             _ => "Invalid operation".to_string(),
         }
     }
+
+    pub fn execute_ai_task(&mut self, task: AITask) -> Result<String, String> {
+        match &mut self.contract_type {
+            ContractType::AIInference(ai_contract) => ai_contract.execute(task),
+            _ => Err("This contract does not support AI tasks".to_string()),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -45,6 +110,7 @@ pub enum ContractType {
         gpu_type: String,
         ram_capacity: f64,
     },
+    AIInference(AIInferenceContract),
     // Add other contract types here as needed
 }
 
