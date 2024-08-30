@@ -13,6 +13,7 @@ use hex::decode;
 use log;
 use secp256k1::PublicKey;
 use crate::smart_contract::ContractManager;
+use crate::resource_manager::ResourceManager;
 
 
 #[derive(Serialize, Debug, Clone)]
@@ -23,6 +24,7 @@ pub struct Blockchain {
     pub db: Option<Db>,
     #[serde(skip)]
     pub contract_manager: ContractManager,
+    #[serde(skip)]
     pub resource_manager: ResourceManager,
 }
 
@@ -34,6 +36,7 @@ impl Blockchain {
             authorities: vec![],
             db: None,
             contract_manager: ContractManager::new(None),  // Initialize ContractManager without DB
+            resource_manager: ResourceManager::new(),
         }
     }
 
@@ -50,6 +53,7 @@ impl Blockchain {
             authorities: vec![],
             db: Some(db.clone()),
             contract_manager: ContractManager::new(Some(db)),  // Initialize ContractManager with DB
+            resource_manager: ResourceManager::new(),
         };
 
         // Load blocks from the database

@@ -181,6 +181,12 @@ impl fmt::Debug for ContractManager {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct GPURequirements {
+    pub min_vram: f64,
+    pub min_cuda_cores: u32,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GPUResourceContract {
     pub owner: SerializablePublicKey,
     pub gpu_type: String,
@@ -200,6 +206,10 @@ impl GPUResourceContract {
             available: true,
             current_task: None,
         }
+    }
+
+    pub fn meets_requirements(&self, requirements: &GPURequirements) -> bool {
+        self.vram_capacity >= requirements.min_vram && self.cuda_cores >= requirements.min_cuda_cores
     }
 
     pub fn reserve(&mut self, task_id: String) -> Result<(), String> {

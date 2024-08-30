@@ -21,6 +21,7 @@ mod network;
 mod server;
 mod smart_contract;
 mod public_key_serde;
+mod resource_manager;
 
 #[derive(StructOpt, Debug)]
 enum AppMode {
