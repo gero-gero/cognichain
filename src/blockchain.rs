@@ -23,6 +23,7 @@ pub struct Blockchain {
     pub db: Option<Db>,
     #[serde(skip)]
     pub contract_manager: ContractManager,
+    pub resource_manager: ResourceManager,
 }
 
 impl Blockchain {

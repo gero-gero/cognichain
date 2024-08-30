@@ -179,3 +179,46 @@ impl fmt::Debug for ContractManager {
             .finish_non_exhaustive()  // Use non_exhaustive to indicate not all fields are displayed
     }
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct GPUResourceContract {
+    pub owner: SerializablePublicKey,
+    pub gpu_type: String,
+    pub vram_capacity: f64,
+    pub cuda_cores: u32,
+    pub available: bool,
+    pub current_task: Option<String>,
+}
+
+impl GPUResourceContract {
+    pub fn new(owner: PublicKey, gpu_type: String, vram_capacity: f64, cuda_cores: u32) -> Self {
+        GPUResourceContract {
+            owner: SerializablePublicKey(owner),
+            gpu_type,
+            vram_capacity,
+            cuda_cores,
+            available: true,
+            current_task: None,
+        }
+    }
+
+    pub fn reserve(&mut self, task_id: String) -> Result<(), String> {
+        if self.available {
+            self.available = false;
+            self.current_task = Some(task_id);
+            Ok(())
+        } else {
+            Err("GPU is not available".to_string())
+        }
+    }
+
+    pub fn release(&mut self) -> Result<(), String> {
+        if !self.available {
+            self.available = true;
+            self.current_task = None;
+            Ok(())
+        } else {
+            Err("GPU is already available".to_string())
+        }
+    }
+}
